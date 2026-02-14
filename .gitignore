@@ -24,4 +24,9 @@ dist-ssr
 *.sw?
 
 .env
+.env.local
 .kiro
+.kiro/settings/mcp.json
+
+# TanStack Router
+src/routeTree.gen.ts
