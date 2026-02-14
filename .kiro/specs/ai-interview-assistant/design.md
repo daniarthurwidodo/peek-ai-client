@@ -5,12 +5,13 @@
 The AI-Powered Interview Assistant is a desktop application built using Tauri 2.x, React 19, and TypeScript 5.8. The application architecture follows a clear separation between the Rust backend (Tauri) and the React frontend, communicating via Tauri's IPC (Inter-Process Communication) mechanism.
 
 The system enables users to:
-1. Authenticate via Google OAuth
-2. Capture screenshots of their screen
+1. Authenticate via Clerk with Google OAuth integration
+2. Capture screenshots of their screen (full screen or selected regions)
 3. Send screenshots to OpenRouter API for AI analysis
-4. Receive and display AI-generated explanations
+4. Receive and display AI-generated explanations with markdown formatting
+5. Manage sessions with local SQLite database storage
 
-The design emphasizes security, cross-platform compatibility, and a clean separation of concerns between UI, business logic, and system-level operations.
+The design emphasizes security, cross-platform compatibility, privacy-first data handling, and a clean separation of concerns between UI, business logic, and system-level operations. The application uses modern React patterns with TanStack Router for navigation and TanStack Query for data fetching and caching.
 
 ## Architecture
 
@@ -20,38 +21,45 @@ The design emphasizes security, cross-platform compatibility, and a clean separa
 graph TB
     subgraph "React Frontend (TypeScript)"
         UI[User Interface Components]
-        AuthUI[Authentication UI]
+        Router[TanStack Router]
+        Query[TanStack Query]
+        AuthUI[Clerk Auth Components]
         CaptureUI[Screenshot Capture UI]
         ResponseUI[AI Response Display]
-        StateManager[Application State Manager]
+        Hooks[Custom React Hooks]
     end
     
     subgraph "Tauri Backend (Rust)"
         Commands[Tauri Commands]
-        AuthService[OAuth Service]
         ScreenCapture[Screen Capture Service]
         APIClient[OpenRouter API Client]
-        SecureStorage[Secure Storage]
+        Database[SQLite Database]
+        DeepLink[Deep Link Handler]
     end
     
     subgraph "External Services"
+        Clerk[Clerk Auth Platform]
         GoogleOAuth[Google OAuth 2.0]
         OpenRouter[OpenRouter API]
     end
     
-    UI --> StateManager
-    AuthUI --> StateManager
-    CaptureUI --> StateManager
-    ResponseUI --> StateManager
+    UI --> Router
+    UI --> Query
+    UI --> Hooks
+    AuthUI --> Clerk
+    Router -->|Navigation| UI
+    Query -->|Data Fetching| Hooks
+    Hooks -->|IPC| Commands
     
-    StateManager -->|IPC| Commands
-    Commands --> AuthService
     Commands --> ScreenCapture
     Commands --> APIClient
-    Commands --> SecureStorage
+    Commands --> Database
+    Commands --> DeepLink
     
-    AuthService -->|HTTPS| GoogleOAuth
+    Clerk -->|OAuth Flow| GoogleOAuth
+    DeepLink -->|Callback| Clerk
     APIClient -->|HTTPS| OpenRouter
+    Database -->|Store| AuthUI
 ```
 
 ### Component Interaction Flow

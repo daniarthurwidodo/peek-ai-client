@@ -1,4 +1,5 @@
 import Database from "@tauri-apps/plugin-sql";
+import type { User } from './types/database';
 
 let db: Database | null = null;
 let isInitializing = false;
@@ -83,7 +84,7 @@ export async function insertUser(name: string, email: string) {
 // Example: Query data
 export async function getUsers() {
   const database = await getDatabase();
-  const users = await database.select<Array<{ id: number; name: string; email: string; created_at: string }>>(
+  const users = await database.select<Array<User>>(
     "SELECT * FROM users"
   );
   return users;

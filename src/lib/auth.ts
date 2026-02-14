@@ -1,10 +1,24 @@
 import { openUrl } from '@tauri-apps/plugin-opener';
+import { AuthErrorMessage, AuthSuccessMessage } from './enums/auth';
 
-export async function signInWithGoogle(signIn: any) {
+export async function signInWithGoogle(signIn: any, clerk: any) {
   try {
-    console.log('Starting Google OAuth flow...');
+    console.log(AuthSuccessMessage.OAUTH_STARTED);
     
-    // Create a sign-in attempt with OAuth strategy and redirect URL
+    // Check if there's a stale session and sign out first
+    try {
+      if (clerk.session) {
+        console.log(AuthSuccessMessage.SIGNING_OUT);
+        await clerk.signOut();
+        // Wait a moment for sign out to complete
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    } catch (signOutError) {
+      console.log('Sign out error (continuing anyway):', signOutError);
+    }
+    
+    // Create a sign-in attempt with OAuth strategy
+    // Use HTTP redirect URL for Clerk, then handle deep link in Tauri
     const signInAttempt = await signIn.create({
       strategy: 'oauth_google',
       redirectUrl: 'http://localhost:3000/oauth-callback',
@@ -17,7 +31,7 @@ export async function signInWithGoogle(signIn: any) {
 
     if (!oauthUrl) {
       console.error('No OAuth URL found in response');
-      throw new Error('Failed to get OAuth URL from Clerk');
+      throw new Error(AuthErrorMessage.NO_OAUTH_URL);
     }
 
     console.log('Opening system browser with OAuth URL:', oauthUrl);
@@ -25,9 +39,25 @@ export async function signInWithGoogle(signIn: any) {
     // Open the OAuth URL in the user's default system browser
     await openUrl(oauthUrl);
     
-    console.log('System browser opened successfully. User will be redirected back after authentication.');
-  } catch (error) {
+    console.log(AuthSuccessMessage.BROWSER_OPENED);
+  } catch (error: any) {
     console.error('Failed to initiate Google sign-in:', error);
-    throw error;
+    
+    // Handle specific error cases
+    let errorMessage = AuthErrorMessage.DEFAULT;
+    
+    if (error.message?.includes('already signed in')) {
+      // User is already signed in, this is not really an error
+      console.log('User is already signed in');
+      throw new Error("You're already signed in.");
+    } else if (error.status === 429 || error.message?.includes('429')) {
+      errorMessage = AuthErrorMessage.RATE_LIMIT;
+    } else if (error.message?.includes('invalid_url_scheme')) {
+      errorMessage = AuthErrorMessage.INVALID_URL;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    throw new Error(errorMessage);
   }
 }

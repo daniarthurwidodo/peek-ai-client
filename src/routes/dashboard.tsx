@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { SignOutButton, useUser } from '@clerk/clerk-react';
 import { useEffect } from 'react';
+import { LayoutDashboard } from 'lucide-react';
 
 export const Route = createFileRoute('/dashboard')({
   component: Dashboard,
@@ -31,7 +32,10 @@ function Dashboard() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Dashboard</h1>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+        <LayoutDashboard size={28} color="#3b82f6" />
+        <h1 style={{ margin: 0 }}>Dashboard</h1>
+      </div>
       
       <div style={{ marginBottom: '20px' }}>
         <p>Welcome, {user.firstName || user.username || user.emailAddresses[0]?.emailAddress}!</p>
@@ -49,11 +53,20 @@ function Dashboard() {
         </ul>
       </div>
 
-      <SignOutButton>
-        <button style={{ padding: '10px 20px', cursor: 'pointer' }}>
-          Sign Out
+      <div style={{ display: 'flex', gap: '10px' }}>
+        <button 
+          onClick={() => window.location.reload()} 
+          style={{ padding: '10px 20px', cursor: 'pointer' }}
+        >
+          Refresh
         </button>
-      </SignOutButton>
+        
+        <SignOutButton>
+          <button style={{ padding: '10px 20px', cursor: 'pointer' }}>
+            Sign Out
+          </button>
+        </SignOutButton>
+      </div>
     </div>
   );
 }

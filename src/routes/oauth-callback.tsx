@@ -15,28 +15,42 @@ function OAuthCallback() {
     const handleOAuthCallback = async () => {
       try {
         const searchParams = new URLSearchParams(window.location.search);
+        const createdSessionId = searchParams.get('created_session_id');
         
         console.log('OAuth callback received:', {
           search: window.location.search,
           hash: window.location.hash,
+          createdSessionId,
           params: Object.fromEntries(searchParams.entries())
         });
 
-        // Clerk handles the OAuth callback automatically through the ClerkProvider
-        // We just need to wait a moment for it to process
+        // If we have a created_session_id, the OAuth flow was successful
+        if (createdSessionId) {
+          console.log('OAuth successful! Session ID:', createdSessionId);
+          
+          // Wait a moment for Clerk to process the session
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Redirect to dashboard
+          console.log('Redirecting to dashboard...');
+          navigate({ to: '/dashboard' });
+          return;
+        }
+
+        // Otherwise, wait for Clerk to process the callback
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Check if user is now signed in
         if (clerk.user) {
           console.log('User signed in successfully:', (clerk.user as any).id);
-          navigate({ to: '/' });
+          navigate({ to: '/dashboard' });
         } else {
           // If not signed in yet, wait a bit more
           await new Promise(resolve => setTimeout(resolve, 2000));
           
           if (clerk.user) {
             console.log('User signed in after delay:', (clerk.user as any).id);
-            navigate({ to: '/' });
+            navigate({ to: '/dashboard' });
           } else {
             throw new Error('Authentication completed but user not found');
           }
