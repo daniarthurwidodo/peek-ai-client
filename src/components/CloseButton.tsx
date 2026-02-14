@@ -1,4 +1,5 @@
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { XIcon } from "@/components/ui/x";
 
 export function CloseButton() {
   const handleClose = async () => {
@@ -13,7 +14,7 @@ export function CloseButton() {
       aria-label="Close window"
       title="Close"
     >
-      ✕
+      <XIcon size={16} />
     </button>
   );
 }

@@ -277,8 +277,8 @@ button {
   width: 32px;
   height: 32px;
   border-radius: 6px;
-  border: none;
-  background-color: rgba(239, 68, 68, 0.8);
+  border: 1px solid white;
+  background-color: transparent;
   color: white;
   font-size: 18px;
   font-weight: bold;
@@ -293,9 +293,10 @@ button {
 }
 
 .close-button:hover {
-  background-color: rgba(239, 68, 68, 1);
+  background-color: transparent;
   transform: scale(1.1);
-  border-color: transparent;
+  border: 1px solid white;
+  
 }
 
 .close-button:active {

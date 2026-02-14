@@ -10,6 +10,7 @@ import { AppModeControls } from "./components/AppModeControls";
 import { AuthSection } from "./components/AuthSection";
 import { ScreenshotSelection } from "./components/ScreenshotSelection";
 import { CloseButton } from "./components/CloseButton";
+import { Card, CardContent, CardDescription, CardFooter } from "./components/ui/card";
 import "./App.css";
 
 function App() {
@@ -43,29 +44,43 @@ function App() {
       <CloseButton />
       <ScreenshotSelection isActive={isScreenshotMode} />
       
-      <main className="container">
+      <main className="container mx-auto p-6 max-w-4xl">
         <AppHeader />
 
-        <AppModeControls
-          isFullscreen={isFullscreen}
-          isScreenshotMode={isScreenshotMode}
-          onToggleFullscreen={toggleFullscreen}
-          onToggleScreenshotMode={toggleScreenshotMode}
-        />
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <AppModeControls
+              isFullscreen={isFullscreen}
+              isScreenshotMode={isScreenshotMode}
+              onToggleFullscreen={toggleFullscreen}
+              onToggleScreenshotMode={toggleScreenshotMode}
+            />
+          </CardContent>
+        </Card>
         
-        <div style={{ marginBottom: "20px" }}>
-          <AuthSection
-            isLoaded={isLoaded}
-            isSignedIn={isSignedIn ?? false}
-            user={user}
-            signInMutation={signInMutation}
-            session={session}
-            onNavigateToDashboard={handleNavigateToDashboard}
-          />
-        </div>
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <AuthSection
+              isLoaded={isLoaded}
+              isSignedIn={isSignedIn ?? false}
+              user={user}
+              signInMutation={signInMutation}
+              session={session}
+              onNavigateToDashboard={handleNavigateToDashboard}
+            />
+          </CardContent>
+        </Card>
 
-        <LogoLinks />
-        <p>Click on the Tauri, Vite, and React logos to learn more.</p>
+        <Card>
+          <CardContent className="pt-6">
+            <LogoLinks />
+          </CardContent>
+          <CardFooter>
+            <CardDescription>
+              Click on the Tauri, Vite, and React logos to learn more.
+            </CardDescription>
+          </CardFooter>
+        </Card>
       </main>
     </>
   );
